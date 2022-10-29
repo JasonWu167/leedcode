@@ -1,4 +1,4 @@
-package leedcode.bfs_and_dfs.a934;
+package leedcode.bfs_and_dfs.leedcode934;
 
 import java.util.ArrayDeque;
 import java.util.Queue;

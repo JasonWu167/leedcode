@@ -1,4 +1,4 @@
-package leedcode.bfs_and_dfs.a1091;
+package leedcode.bfs_and_dfs.leedcode1091;
 
 import java.util.LinkedList;
 import java.util.Queue;

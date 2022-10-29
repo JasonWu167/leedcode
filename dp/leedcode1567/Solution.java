@@ -1,4 +1,4 @@
-package leedcode.dp.a1567;
+package leedcode.dp.leedcode1567;
 
 
 public class Solution {

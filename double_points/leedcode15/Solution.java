@@ -1,4 +1,4 @@
-package leedcode.double_points.a15;
+package leedcode.double_points.leedcode15;
 
 
 import java.util.ArrayList;

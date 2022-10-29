@@ -1,4 +1,4 @@
-package leedcode.palindrome.a680;
+package leedcode.palindrome.leedcode680;
 
 public class Solution {
     /**

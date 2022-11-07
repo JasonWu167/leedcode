@@ -1,7 +1,7 @@
 package leedcode;
 
 
-import leedcode.leedcode1620.Solution;
+import leedcode.leedcode1684.Solution;
 
 public class TestDemo {
 
@@ -12,8 +12,10 @@ public class TestDemo {
                 {1,2,5},
                 {2,1,7},{3,1,9}
         };
-        solution.bestCoordinate(arr,2);
-        System.out.println(5^1);
+        int ab = solution.countConsistentStrings("ab",
+                new String[]{"ad", "bd", "aaab", "baa", "badab"});
+        System.out.println(ab);
+
     }
 }
 

@@ -1492,3 +1492,803 @@ public boolean isValid(String s) {
 }
 ```
 
+### [21. 合并两个有序链表](https://leetcode.cn/problems/merge-two-sorted-lists/)
+
+将两个升序链表合并为一个新的 **升序** 链表并返回。新链表是通过拼接给定的两个链表的所有节点组成的。 
+
+ **示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2020/10/03/merge_ex1.jpg)
+
+```
+输入：l1 = [1,2,4], l2 = [1,3,4]
+输出：[1,1,2,3,4,4]
+```
+
+**示例 2：**
+
+```
+输入：l1 = [], l2 = []
+输出：[]
+```
+
+**示例 3：**
+
+```
+输入：l1 = [], l2 = [0]
+输出：[0]
+```
+
+ **提示：**
+
+- 两个链表的节点数目范围是 `[0, 50]`
+- `-100 <= Node.val <= 100`
+- `l1` 和 `l2` 均按 **非递减顺序** 排列
+
+```java
+public ListNode mergeTwoLists(ListNode list1, ListNode list2) {
+//方法一：递归
+    //特判
+    if (list1 == null || list2 == null) {
+        return list1 == null ? list2 : list1;
+    }
+    if (list1.val <= list2.val) {
+        list1.next = mergeTwoLists(list1.next, list2);
+        return list1;
+    } else {
+        list2.next = mergeTwoLists(list1, list2.next);
+        return list2;
+    }
+//方法二：迭代        
+    ListNode res = new ListNode();
+    ListNode cur = res;
+    while (list1 != null && list2 != null) {
+        if (list1.val <= list2.val) {
+            cur.next = list1;
+            list1 = list1.next;
+        } else {
+            cur.next = list2;
+            list2 = list2.next;
+        }
+        cur = cur.next;
+    }
+    if (list1 == null) {
+        cur.next = list2;
+    }
+    if (list2 == null) {
+        cur.next = list1;
+    }
+    return res.next;
+}
+```
+
+### [22. 括号生成](https://leetcode.cn/problems/generate-parentheses/)
+
+数字 `n` 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 **有效的** 括号组合。
+
+**示例 1：**
+
+```
+输入：n = 3
+输出：["((()))","(()())","(())()","()(())","()()()"]
+```
+
+**示例 2：**
+
+```
+输入：n = 1
+输出：["()"]
+```
+
+ **提示：**
+
+- `1 <= n <= 8`
+
+**深度优先遍历**
+
+```java
+public List<String> generateParenthesis(int n) {
+    ArrayList<String> res = new ArrayList<>();
+    if (n == 0) {
+        return res;//特判
+    }
+    dfs("",0,0,res ,n);
+    return res;
+
+}
+public void dfs(String s, int left, int right, List<String> res, int n) {
+    //终止条件：左括号和右括号等于括号数
+    if (left == n && right == n) {
+        res.add(s);
+        return;
+    }
+    if (left < right) {
+        return;//左括号小于右括号，剪枝
+    }
+    if (left < n) {
+        //添加左括号
+        dfs(s + "(", left + 1, right, res, n);
+    }
+    if (right < n) {
+        //添加右括号
+        dfs(s + ")", left, right + 1, res, n);
+    }
+}
+```
+
+**广度优先遍历**
+
+```java
+class Node {
+	//准备一个树形结构
+    private String val;//结构值
+    private int left;//左括号数
+    private int right;//右括号数
+
+    public Node(String val, int left, int right) {
+        this.val = val;
+        this.left = left;
+        this.right = right;
+    }
+}
+
+public List<String> generateParenthesis(int n) {
+    ArrayList<String> res = new ArrayList<>();
+    if (n == 0) {
+        return res;//特判
+    }
+    //准备队列，bfs常用方法
+    Queue<Node> queue = new LinkedList<>();
+    queue.offer(new Node("", 0, 0));
+
+    while (!queue.isEmpty()) {
+        Node curNode = queue.poll();
+        //终止条件：左括号和右括号等于括号数
+        if (curNode.left == n && curNode.right == n) {
+            res.add(curNode.val);
+        }
+        if(curNode.left < curNode.right){
+            continue;//左括号小于右括号
+        }
+        //添加左括号
+        if (curNode.left <n ) {
+            queue.offer(new Node(curNode.val + "(", curNode.left + 1, curNode.right));
+        }
+        //添加右括号
+        if (curNode.right <n ) {
+            queue.offer(new Node(curNode.val + ")", curNode.left, curNode.right + 1));
+        }
+    }
+    return res;
+}
+```
+
+### [23. 合并K个升序链表](https://leetcode.cn/problems/merge-k-sorted-lists/)
+
+给你一个链表数组，每个链表都已经按升序排列。
+
+请你将所有链表合并到一个升序链表中，返回合并后的链表。
+
+ **示例 1：**
+
+```
+输入：lists = [[1,4,5],[1,3,4],[2,6]]
+输出：[1,1,2,3,4,4,5,6]
+解释：链表数组如下：
+[
+  1->4->5,
+  1->3->4,
+  2->6
+]
+将它们合并到一个有序链表中得到。
+1->1->2->3->4->4->5->6
+```
+
+**示例 2：**
+
+```
+输入：lists = []
+输出：[]
+```
+
+**示例 3：**
+
+```
+输入：lists = [[]]
+输出：[]
+```
+
+ **提示：**
+
+- `k == lists.length`
+- `0 <= k <= 10^4`
+- `0 <= lists[i].length <= 500`
+- `-10^4 <= lists[i][j] <= 10^4`
+- `lists[i]` 按 **升序** 排列
+- `lists[i].length` 的总和不超过 `10^4`
+
+```java
+//分治算法
+public ListNode mergeKLists(ListNode[] lists) {
+    int n = lists.length;
+    if (n == 0) {
+        return null;
+    }
+    return process(lists, 0, n - 1);
+}
+//分
+public ListNode process(ListNode[] lists, int left, int right) {
+    if (left == right) {
+        return lists[left];
+    }
+    int mid = left + (right - left) / 2;
+    ListNode l = process(lists, left, mid);
+    ListNode r = process(lists, mid + 1, right);
+    return merge(l, r);
+}
+//治
+public ListNode merge(ListNode l1, ListNode l2) {
+    //这里其实就是合并两条链表的算法
+    ListNode dummy = new ListNode(0);
+    ListNode cur = dummy;
+    while (l1 != null && l2 != null) {
+        if (l1.val <= l2.val) {
+            cur.next = l1;
+            l1 = l1.next;
+        } else {
+            cur.next = l2;
+            l2 = l2.next;
+        }
+        cur = cur.next;
+    }
+    cur.next = l1 == null ? l2 : l1;
+    return dummy.next;
+}
+```
+
+### [24. 两两交换链表中的节点](https://leetcode.cn/problems/swap-nodes-in-pairs/)
+
+给你一个链表，两两交换其中相邻的节点，并返回交换后链表的头节点。你必须在不修改节点内部的值的情况下完成本题（即，只能进行节点交换）。
+
+ **示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2020/10/03/swap_ex1.jpg)
+
+```
+输入：head = [1,2,3,4]
+输出：[2,1,4,3]
+```
+
+**示例 2：**
+
+```
+输入：head = []
+输出：[]
+```
+
+**示例 3：**
+
+```
+输入：head = [1]
+输出：[1]
+```
+
+ **提示：**
+
+- 链表中节点的数目在范围 `[0, 100]` 内
+- `0 <= Node.val <= 100`
+
+```java
+public ListNode swapPairs(ListNode head) {
+    if (head == null) {
+        return null;
+    }
+    ListNode dummy = new ListNode(0);
+    dummy.next = head;
+    ListNode pre = dummy;
+    ListNode cur = dummy.next;
+    ListNode next = cur.next;
+    ListNode last;
+    while (cur != null && next != null) {
+        last = next.next;
+        pre.next = next;
+        next.next = cur;
+        cur.next = last;
+        pre = cur;
+        cur = last;
+        next = cur == null ? null : cur.next;
+    }
+    return dummy.next;
+}
+```
+
+### [25. K 个一组翻转链表](https://leetcode.cn/problems/reverse-nodes-in-k-group/)
+
+给你链表的头节点 `head` ，每 `k` 个节点一组进行翻转，请你返回修改后的链表。
+
+`k` 是一个正整数，它的值小于或等于链表的长度。如果节点总数不是 `k` 的整数倍，那么请将最后剩余的节点保持原有顺序。
+
+你不能只是单纯的改变节点内部的值，而是需要实际进行节点交换。
+
+ **示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2020/10/03/reverse_ex1.jpg)
+
+```
+输入：head = [1,2,3,4,5], k = 2
+输出：[2,1,4,3,5]
+```
+
+**示例 2：**
+
+![img](https://assets.leetcode.com/uploads/2020/10/03/reverse_ex2.jpg)
+
+```
+输入：head = [1,2,3,4,5], k = 3
+输出：[3,2,1,4,5]
+```
+
+ **提示：**
+
+- 链表中的节点数目为 `n`
+- `1 <= k <= n <= 5000`
+- `0 <= Node.val <= 1000`
+
+ **进阶：**你可以设计一个只用 `O(1)` 额外内存空间的算法解决此问题吗？
+
+```java
+public ListNode reverseKGroup(ListNode head, int k) {
+    if (head == null || k < 2) {
+        return head;//特判
+    }
+    ListNode dummy = new ListNode(0);
+    dummy.next = head;
+    ListNode pre = dummy;
+    ListNode end = dummy;
+    while (end.next != null) {
+        //找到结尾，若k比待反转部分长度大，返回结果
+        for (int i = 0; i < k; i++) {
+            end = end.next;
+            if (end == null) return dummy.next;
+        }
+        //反转开始的节点
+        ListNode start = pre.next;
+        //下一次反转的节点开始
+        ListNode next = end.next;
+        //断链表
+        end.next = null;
+        pre.next = reverse(start);
+        start.next = next;
+        pre = start;
+        end = start;
+    }
+    return dummy.next;
+}
+
+//反转链表
+public ListNode reverse(ListNode head) {
+    ListNode pre = null;
+    ListNode cur = head;
+    while (cur != null) {
+        ListNode last = cur.next;
+        cur.next = pre;
+        pre = cur;
+        cur = last;
+    }
+    return pre;
+}
+```
+
+### [26. 删除有序数组中的重复项](https://leetcode.cn/problems/remove-duplicates-from-sorted-array/)
+
+给你一个 **升序排列** 的数组 `nums` ，请你**[ 原地](http://baike.baidu.com/item/原地算法)** 删除重复出现的元素，使每个元素 **只出现一次** ，返回删除后数组的新长度。元素的 **相对顺序** 应该保持 **一致** 。
+
+由于在某些语言中不能改变数组的长度，所以必须将结果放在数组nums的第一部分。更规范地说，如果在删除重复项之后有 `k` 个元素，那么 `nums` 的前 `k` 个元素应该保存最终结果。
+
+将最终结果插入 `nums` 的前 `k` 个位置后返回 `k` 。
+
+不要使用额外的空间，你必须在 **[原地 ](https://baike.baidu.com/item/原地算法)修改输入数组** 并在使用 O(1) 额外空间的条件下完成。
+
+**判题标准:**
+
+系统会用下面的代码来测试你的题解:
+
+```
+int[] nums = [...]; // 输入数组
+int[] expectedNums = [...]; // 长度正确的期望答案
+
+int k = removeDuplicates(nums); // 调用
+
+assert k == expectedNums.length;
+for (int i = 0; i < k; i++) {
+    assert nums[i] == expectedNums[i];
+}
+```
+
+如果所有断言都通过，那么您的题解将被 **通过**。
+
+ **示例 1：**
+
+```
+输入：nums = [1,1,2]
+输出：2, nums = [1,2,_]
+解释：函数应该返回新的长度 2 ，并且原数组 nums 的前两个元素被修改为 1, 2 。不需要考虑数组中超出新长度后面的元素。
+```
+
+**示例 2：**
+
+```
+输入：nums = [0,0,1,1,1,2,2,3,3,4]
+输出：5, nums = [0,1,2,3,4]
+解释：函数应该返回新的长度 5 ， 并且原数组 nums 的前五个元素被修改为 0, 1, 2, 3, 4 。不需要考虑数组中超出新长度后面的元素。
+```
+
+ **提示：**
+
+- `1 <= nums.length <= 3 * 104`
+- `-104 <= nums[i] <= 104`
+- `nums` 已按 **升序** 排列
+
+```java
+public int removeDuplicates(int[] nums) {
+    int ans = 0;
+    for (int i = 1; i < nums.length; i++) {
+        if (nums[ans] != nums[i]) {
+            nums[ans + 1] = nums[right];
+            ans++;
+        }
+    }
+    return ans + 1;
+}
+```
+
+### [27. 移除元素](https://leetcode.cn/problems/remove-element/)
+
+给你一个数组 `nums` 和一个值 `val`，你需要 **[原地](https://baike.baidu.com/item/原地算法)** 移除所有数值等于 `val` 的元素，并返回移除后数组的新长度。
+
+不要使用额外的数组空间，你必须仅使用 `O(1)` 额外空间并 **[原地 ](https://baike.baidu.com/item/原地算法)修改输入数组**。
+
+元素的顺序可以改变。你不需要考虑数组中超出新长度后面的元素。
+
+ **说明:**
+
+为什么返回数值是整数，但输出的答案是数组呢?
+
+请注意，输入数组是以**「引用」**方式传递的，这意味着在函数里修改输入数组对于调用者是可见的。
+
+你可以想象内部操作如下:
+
+```
+// nums 是以“引用”方式传递的。也就是说，不对实参作任何拷贝
+int len = removeElement(nums, val);
+
+// 在函数里修改输入数组对于调用者是可见的。
+// 根据你的函数返回的长度, 它会打印出数组中 该长度范围内 的所有元素。
+for (int i = 0; i < len; i++) {
+    print(nums[i]);
+}
+```
+
+ **示例 1：**
+
+```
+输入：nums = [3,2,2,3], val = 3
+输出：2, nums = [2,2]
+解释：函数应该返回新的长度 2, 并且 nums 中的前两个元素均为 2。你不需要考虑数组中超出新长度后面的元素。例如，函数返回的新长度为 2 ，而 nums = [2,2,3,3] 或 nums = [2,2,0,0]，也会被视作正确答案。
+```
+
+**示例 2：**
+
+```
+输入：nums = [0,1,2,2,3,0,4,2], val = 2
+输出：5, nums = [0,1,4,0,3]
+解释：函数应该返回新的长度 5, 并且 nums 中的前五个元素为 0, 1, 3, 0, 4。注意这五个元素可为任意顺序。你不需要考虑数组中超出新长度后面的元素。
+```
+
+ **提示：**
+
+- `0 <= nums.length <= 100`
+- `0 <= nums[i] <= 50`
+- `0 <= val <= 100`
+
+```java
+public int removeElement(int[] nums, int val) {
+    int ans = 0;
+    for (int i = 0; i < nums.length; i++) {
+        if (nums[i] != val) {
+            nums[ans] = nums[i];
+            ans++;
+        }
+    }
+    return ans;
+}
+```
+
+### [28. 找出字符串中第一个匹配项的下标](https://leetcode.cn/problems/find-the-index-of-the-first-occurrence-in-a-string/)
+
+给你两个字符串 `haystack` 和 `needle` ，请你在 `haystack` 字符串中找出 `needle` 字符串的第一个匹配项的下标（下标从 0 开始）。如果 `needle` 不是 `haystack` 的一部分，则返回 `-1` 。
+
+ **示例 1：**
+
+```
+输入：haystack = "sadbutsad", needle = "sad"
+输出：0
+解释："sad" 在下标 0 和 6 处匹配。
+第一个匹配项的下标是 0 ，所以返回 0 。
+```
+
+**示例 2：**
+
+```
+输入：haystack = "leetcode", needle = "leeto"
+输出：-1
+解释："leeto" 没有在 "leetcode" 中出现，所以返回 -1 。
+```
+
+ **提示：**
+
+- `1 <= haystack.length, needle.length <= 104`
+- `haystack` 和 `needle` 仅由小写英文字符组成
+
+**利用API**
+
+```java
+public int strStr(String haystack, String needle) {
+    return haystack.indexOf(needle);
+}
+```
+
+**KMP算法**
+
+如果看不懂只能去学习了解KMP算法了，本人无法通过文字描述。这道题就是KMP的模板题
+
+```java
+//构建next数组
+public int[] createNext(String s) {
+    int[] next = new int[s.length()];
+    int j = 0;
+    for (int i = 1; i < s.length(); i++) {
+        while (j > 0 && s.charAt(i) != s.charAt(j)) {
+            j = next[j - 1];
+        }
+        if (s.charAt(i) == s.charAt(j)) {
+            j++;
+        }
+        next[i] = j;
+    }
+    return next;
+}
+
+public int strStr(String haystack, String needle) {
+    int n = haystack.length(), m = needle.length();
+    if (m == 0) {
+        return 0;
+    }
+    int[] next = createNext(needle);
+    int index = 0;
+    for (int i = 0; i < n; i++) {
+        while (index > 0 && haystack.charAt(i) != needle.charAt(index)) {
+            index = next[index - 1];
+        }
+        if (haystack.charAt(i) == needle.charAt(index)) {
+            index++;
+        }
+        if (index == m) {
+            return i - m + 1;
+        }
+    }
+    return -1;
+}
+```
+
+### [29. 两数相除](https://leetcode.cn/problems/divide-two-integers/)
+
+给定两个整数，被除数 `dividend` 和除数 `divisor`。将两数相除，要求不使用乘法、除法和 mod 运算符。
+
+返回被除数 `dividend` 除以除数 `divisor` 得到的商。
+
+整数除法的结果应当截去（`truncate`）其小数部分，例如：`truncate(8.345) = 8` 以及 `truncate(-2.7335) = -2`
+
+ **示例 1:**
+
+```
+输入: dividend = 10, divisor = 3
+输出: 3
+解释: 10/3 = truncate(3.33333..) = truncate(3) = 3
+```
+
+**示例 2:**
+
+```
+输入: dividend = 7, divisor = -3
+输出: -2
+解释: 7/-3 = truncate(-2.33333..) = -2
+```
+
+ **提示：**
+
+- 被除数和除数均为 32 位有符号整数。
+- 除数不为 0。
+- 假设我们的环境只能存储 32 位有符号整数，其数值范围是 [−231, 231 − 1]。本题中，如果除法结果溢出，则返回 231 − 1。
+
+```java
+public int divide(int dividend, int divisor) {
+    long d1 = (long) Math.abs(((long) dividend));
+    long d2 = (long) Math.abs(((long) divisor));
+    boolean isNeg = (dividend ^ divisor) < 0;
+    long l = 1, r = d1;
+    long ans = 0;
+    while (l <= r) {
+        long mid = l + ((r - l) >> 1);
+        if (multiply(mid, d2) <= d1) {
+            ans = mid;
+            l = mid + 1;
+        } else {
+            r = mid - 1;
+        }
+    }
+    if (!isNeg && ans > Integer.MAX_VALUE) {
+        return Integer.MAX_VALUE;
+    }
+    return isNeg ? (int) (-ans) : (int) ans;
+}
+
+public long multiply(long a, long b) {
+    long ans = 0;
+    while (b > 0) {
+        if ((b & 1) == 1) {
+            ans += a;
+        }
+        a += a;
+        b >>= 1;
+    }
+    return ans;
+}
+```
+
+### [30. 串联所有单词的子串](https://leetcode.cn/problems/substring-with-concatenation-of-all-words/)
+
+给定一个字符串 `s` 和一个字符串数组 `words`**。** `words` 中所有字符串 **长度相同**。
+
+ `s` 中的 **串联子串** 是指一个包含 `words` 中所有字符串以任意顺序排列连接起来的子串。
+
+- 例如，如果 `words = ["ab","cd","ef"]`， 那么 `"abcdef"`， `"abefcd"`，`"cdabef"`， `"cdefab"`，`"efabcd"`， 和 `"efcdab"` 都是串联子串。 `"acdbef"` 不是串联子串，因为他不是任何 `words` 排列的连接。
+
+返回所有串联字串在 `s` 中的开始索引。你可以以 **任意顺序** 返回答案。
+
+ **示例 1：**
+
+```
+输入：s = "barfoothefoobarman", words = ["foo","bar"]
+输出：[0,9]
+解释：因为 words.length == 2 同时 words[i].length == 3，连接的子字符串的长度必须为 6。
+子串 "barfoo" 开始位置是 0。它是 words 中以 ["bar","foo"] 顺序排列的连接。
+子串 "foobar" 开始位置是 9。它是 words 中以 ["foo","bar"] 顺序排列的连接。
+输出顺序无关紧要。返回 [9,0] 也是可以的。
+```
+
+**示例 2：**
+
+```
+输入：s = "wordgoodgoodgoodbestword", words = ["word","good","best","word"]
+输出：[]
+解释：因为 words.length == 4 并且 words[i].length == 4，所以串联子串的长度必须为 16。
+s 中没有子串长度为 16 并且等于 words 的任何顺序排列的连接。
+所以我们返回一个空数组。
+```
+
+**示例 3：**
+
+```
+输入：s = "barfoofoobarthefoobarman", words = ["bar","foo","the"]
+输出：[6,9,12]
+解释：因为 words.length == 3 并且 words[i].length == 3，所以串联子串的长度必须为 9。
+子串 "foobarthe" 开始位置是 6。它是 words 中以 ["foo","bar","the"] 顺序排列的连接。
+子串 "barthefoo" 开始位置是 9。它是 words 中以 ["bar","the","foo"] 顺序排列的连接。
+子串 "thefoobar" 开始位置是 12。它是 words 中以 ["the","foo","bar"] 顺序排列的连接。
+```
+
+ **提示：**
+
+- `1 <= s.length <= 104`
+- `1 <= words.length <= 5000`
+- `1 <= words[i].length <= 30`
+- `words[i]` 和 `s` 由小写英文字母组成
+
+**失败的版本，用的回溯，通过150+的示例，然后超出内存限制了**
+
+```java
+List<Integer> res = new ArrayList<>();
+List<String> list = new ArrayList<>();
+
+public List<Integer> findSubstring(String s, String[] words) {
+    if (s == null || words[0].length() * words.length > s.length()) {
+        return res;
+    }
+    StringBuffer sb = new StringBuffer();
+    bfs(sb, words, 0);
+    for (String str : list) {
+        int index = -1;
+        while (index <= s.length()) {
+            index = s.indexOf(str, index);
+            if (index == -1) {
+                break;
+            }
+            if (!res.contains(index)) {
+                res.add(index);
+            }
+            index += 1;
+        }
+    }
+    return res;
+}
+
+public void bfs(StringBuffer s, String[] words, int index) {
+    if (words.length == index) {
+        list.add(s.toString());
+        return;
+    }
+    String help;
+    for (int i = 0; i < words.length; i++) {
+        if (words[i].equals("")) continue;
+        s.append(words[i]);
+        help = words[i];
+        words[i] = "";
+        bfs(s, words, index + 1);
+        words[i] = help;
+        s.delete(index * words[i].length(), (index + 1) * words[i].length());
+    }
+}
+```
+
+**滑动窗口**
+
+```java
+public List<Integer> findSubstring(String s, String[] words) {
+    List<Integer> res = new ArrayList<>();
+    int w = words[0].length();//一个单词的长度
+    int len = w * words.length;//子串长度
+    if (len > s.length()) {
+        return res;//特判
+    }
+    HashMap<String, Integer> hashMap = new HashMap<>();
+    for (String word : words) {
+        if (hashMap.containsKey(word)) {
+            int key = hashMap.get(word);
+            hashMap.put(word, ++key);
+        } else {
+            hashMap.put(word, 1);
+        }
+    }
+    HashMap<String, Integer> tempMap = new HashMap<>();
+    for (int start = 0; start + len <= s.length(); start++) {
+        tempMap.clear();
+        int j;
+        for (j = 0; j < len; j += w) {
+            String temp = s.substring(start + j, start + j + w);//截取一个单词的长度
+            if (hashMap.containsKey(temp)) {
+                //如果有这个单词，就让它加入到临时哈希表
+                if (tempMap.containsKey(temp)) {
+                    int value = tempMap.get(temp);
+                    tempMap.put(temp, ++value);
+                    if (value > hashMap.get(temp)) {
+                        //如果匹配的单词数比原有的多，跳出
+                        break;
+                    }
+                } else {
+                    tempMap.put(temp, 1);
+                }
+            } else {
+                //如果都没有这个单词，跳出
+                break;
+            }
+        }
+        if (j == len) {
+            //全部都有，加入结果集
+            res.add(start);
+        }
+    }
+    return res;
+}
+```
+
